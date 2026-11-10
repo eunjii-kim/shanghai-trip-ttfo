@@ -152,7 +152,7 @@
     <div class="legend">
       <h3 id="legTitle"></h3>
       <ol id="legList"></ol>
-      <p class="note">회색 핀 = 대략 위치 · 점선은 방문 순서(실제 경로 아님)</p>
+      <p class="note">회색 핀 = 대략 위치 (정확한 곳은 구글맵/고덕지도 링크) · 점선은 방문 순서</p>
     </div>
   </main>
 </div>
@@ -162,26 +162,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 /* 좌표는 WGS84. approx:true = 대략 위치 (정확한 주소 미확인) */
-var PVG = {n:"푸동공항 (PVG)", q:"Shanghai Pudong International Airport", ll:[31.1443,121.8083]};
+var PVG = {a:"浦东国际机场", n:"푸동공항 (PVG)", q:"Shanghai Pudong International Airport", ll:[31.1443,121.8083]};
 var P = {
-  hotel: {n:"숙소 · 징라이 호텔 부셔 (와이탄)", q:"Jinglai Hotel Bushe Shanghai Bund, No. 2 Jinling East Road, Huangpu", ll:[31.2302,121.4912], approx:true},
-  nanjing:{n:"난징동루 보행가", q:"Nanjing East Road Pedestrian Street Shanghai", ll:[31.2370,121.4800]},
-  first: {n:"헌지우이치엔 (난징동루 제일백화점)", q:"Shanghai No.1 Department Store Nanjing East Road", ll:[31.2352,121.4785]},
-  chii:  {n:"치이카와 스토어", q:"Chiikawa Store Shanghai", ll:[31.2365,121.4795], approx:true},
-  pop:   {n:"팝마트", q:"POP MART Nanjing East Road Shanghai", ll:[31.2372,121.4810], approx:true},
-  miniso:{n:"미니소", q:"MINISO Nanjing East Road Shanghai", ll:[31.2368,121.4790], approx:true},
-  bund:  {n:"와이탄 (야경)", q:"The Bund Shanghai", ll:[31.2397,121.4905]},
-  yu:    {n:"예원 / 성황묘", q:"Yu Garden Shanghai", ll:[31.2272,121.4920]},
-  crab:  {n:"장씨네 게살국수 (점심)", q:"441 Zhejiang Middle Road, Huangpu, Shanghai 200001", ll:[31.2338,121.4790], approx:true},
-  disney:{n:"상하이 디즈니랜드", q:"Shanghai Disneyland", ll:[31.1434,121.6580]},
+  hotel: {a:"上海 金陵东路2号 光明金融大厦 璟来酒店", n:"숙소 · 징라이 호텔 부셔 (와이탄)", q:"Jinglai Hotel Bushe Shanghai Bund, No. 2 Jinling East Road, Huangpu", ll:[31.2302,121.4912], approx:true},
+  nanjing:{a:"上海 南京东路步行街", n:"난징동루 보행가", q:"Nanjing East Road Pedestrian Street Shanghai", ll:[31.2370,121.4800]},
+  first: {a:"上海第一百货商店", n:"헌지우이치엔 (난징동루 제일백화점)", q:"Shanghai No.1 Department Store Nanjing East Road", ll:[31.2352,121.4785]},
+  chii:  {a:"上海 吉伊卡哇 专卖店", n:"치이카와 스토어", q:"Chiikawa Store Shanghai", ll:[31.2365,121.4795], approx:true},
+  pop:   {a:"上海 泡泡玛特 南京东路", n:"팝마트", q:"POP MART Nanjing East Road Shanghai", ll:[31.2372,121.4810], approx:true},
+  miniso:{a:"上海 名创优品 南京东路", n:"미니소", q:"MINISO Nanjing East Road Shanghai", ll:[31.2368,121.4790], approx:true},
+  bund:  {a:"外滩", n:"와이탄 (야경)", q:"The Bund Shanghai", ll:[31.2397,121.4905]},
+  yu:    {a:"豫园", n:"예원 / 성황묘", q:"Yu Garden Shanghai", ll:[31.2272,121.4920]},
+  crab:  {a:"上海 浙江中路441号", n:"장씨네 게살국수 (점심)", q:"441 Zhejiang Middle Road, Huangpu, Shanghai 200001", ll:[31.2338,121.4790], approx:true},
+  disney:{a:"上海迪士尼乐园", n:"상하이 디즈니랜드", q:"Shanghai Disneyland", ll:[31.1434,121.6580]},
   simuk: {n:"시먹 (저녁 · 호텔에서 배달)", q:"Jinglai Hotel Bushe Shanghai Bund, No. 2 Jinling East Road, Huangpu", ll:[31.2302,121.4912], approx:true},
-  wukang:{n:"무캉로", q:"Wukang Road Shanghai", ll:[31.2050,121.4385]},
-  dian:  {n:"점도덕 (환위휘 B1)", q:"点都德 环宇荟 黄陂南路838弄 上海", ll:[31.2130,121.4690], approx:true},
-  kp:    {n:"대한민국 임시정부 터 (마당로)", q:"Korean Provisional Government Site Shanghai", ll:[31.2170,121.4715], approx:true},
-  xtd:   {n:"신천지 쇼핑몰", q:"Shanghai Xintiandi", ll:[31.2195,121.4748]},
-  luna:  {n:"lunaberri (신천지 광장 B2)", q:"Xintiandi Plaza, 333 Huaihai Middle Road, Huangpu, Shanghai", ll:[31.2205,121.4735], approx:true},
-  hdl:   {n:"하이디라오 (번드점)", q:"海底捞 外滩店 上海", ll:[31.2335,121.4905], approx:true},
-  pearl: {n:"동방명주", q:"Oriental Pearl Tower Shanghai", ll:[31.2397,121.4998]}
+  wukang:{a:"武康路", n:"무캉로", q:"Wukang Road Shanghai", ll:[31.2050,121.4385]},
+  dian:  {a:"上海 点都德 环宇荟 黄陂南路838弄", n:"점도덕 (환위휘 B1)", q:"点都德 环宇荟 黄陂南路838弄 上海", ll:[31.2130,121.4690], approx:true},
+  kp:    {a:"大韩民国临时政府旧址", n:"대한민국 임시정부 터 (마당로)", q:"Korean Provisional Government Site Shanghai", ll:[31.2170,121.4715], approx:true},
+  xtd:   {a:"上海 新天地", n:"신천지 쇼핑몰", q:"Shanghai Xintiandi", ll:[31.2195,121.4748]},
+  luna:  {a:"上海 新天地广场 淮海中路333号 lunaberri", n:"lunaberri (신천지 광장 B2)", q:"Xintiandi Plaza, 333 Huaihai Middle Road, Huangpu, Shanghai", ll:[31.2205,121.4735], approx:true},
+  hdl:   {a:"上海 海底捞 外滩", n:"하이디라오 (번드점)", q:"海底捞 外滩店 上海", ll:[31.2335,121.4905], approx:true},
+  pearl: {a:"东方明珠广播电视塔", n:"동방명주", q:"Oriental Pearl Tower Shanghai", ll:[31.2397,121.4998]}
 };
 var H = {p:P.hotel};
 var DAYS = [
@@ -218,6 +218,7 @@ var DAYS = [
 ];
 
 var map, layer, cur = 0;
+function amap(p){ return "https://uri.amap.com/search?keyword=" + encodeURIComponent(p.a) + "&callnative=1"; }
 function gmaps(q){ return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q); }
 
 function draw(i){
@@ -244,7 +245,7 @@ function draw(i){
     html += '<li><span class="num '+(home?'home':(has?'':'none'))+'">'+label+'</span><div><b>'+p.n+'</b> '
       + (s.t?'<span class="approx">'+s.t+'</span>':'')
       + (!has&&!s.nolink?' <span class="approx">· 지도 미표시</span>':'')
-      + (p.q && !s.nolink ? ' <a href="'+gmaps(p.q)+'" target="_blank" rel="noopener">구글맵 ↗</a>' : '')
+      + (p.q && !s.nolink ? ' <a href="'+gmaps(p.q)+'" target="_blank" rel="noopener">구글맵 ↗</a> <a href="'+amap(p)+'" target="_blank" rel="noopener">고덕지도 ↗</a>' : '')
       + '</div></li>';
   });
   if(pts.length>1){
