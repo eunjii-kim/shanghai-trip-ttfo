@@ -43,18 +43,22 @@
   footer{text-align:center;color:var(--muted);font-size:.8rem;padding:0 16px 32px}
 
   #mapview{display:none}
-  #map{height:56vh;min-height:320px;border-radius:16px;border:1px solid var(--line);margin-top:12px;z-index:1}
+  #map{height:48vh;min-height:300px;border-radius:14px;border:1px solid var(--line);margin-top:12px;z-index:1}
   .legend{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
   .legend h3{margin:0 0 8px;font-size:1rem}
   .legend ol{margin:0;padding-left:0;list-style:none}
-  .legend li{display:flex;gap:10px;align-items:flex-start;margin:8px 0;font-size:.92rem}
-  .num{flex:none;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .legend li{display:flex;gap:10px;align-items:flex-start;margin:6px 0;font-size:.88rem}
+  .num{flex:none;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
   .num.none{background:var(--muted)}
+  .num.home{background:#1f2430}
+  @media (prefers-color-scheme: dark){ .num.home{background:#fff;color:#1f2430} }
   .legend a{color:var(--accent);font-size:.8rem;text-decoration:none;white-space:nowrap}
   .approx{color:var(--muted);font-size:.78rem}
   .note{color:var(--muted);font-size:.8rem;margin:10px 2px 0}
-  .pin{background:var(--accent);color:#fff;border:2px solid #fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  .pin{background:var(--accent);color:#fff;border:2px solid #fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.68rem;box-shadow:0 0 2px rgba(0,0,0,.35)}
   .pin.approx{background:#8a8f99}
+  .pin.home{background:#1f2430;width:24px;height:24px;font-size:.72rem}
+  @media (prefers-color-scheme: dark){ .pin.home{background:#fff;color:#1f2430;border-color:#1f2430} }
 </style>
 </head>
 <body>
@@ -148,7 +152,7 @@
     <div class="legend">
       <h3 id="legTitle"></h3>
       <ol id="legList"></ol>
-      <p class="note">회색 핀·<b>대략 위치</b>는 정확한 주소를 확인하지 못해 주변 지역에 임시로 찍은 곳입니다. 번호 옆 '구글맵' 링크로 정확한 위치를 확인하세요. 선은 방문 순서를 직선으로 이은 것이라 실제 이동 경로와는 다릅니다.</p>
+      <p class="note">회색 핀 = 대략 위치 · 점선은 방문 순서(실제 경로 아님)</p>
     </div>
   </main>
 </div>
@@ -179,12 +183,14 @@ var P = {
   hdl:   {n:"하이디라오 (번드점)", q:"海底捞 外滩店 上海", ll:[31.2335,121.4905], approx:true},
   pearl: {n:"동방명주", q:"Oriental Pearl Tower Shanghai", ll:[31.2397,121.4998]}
 };
+var H = {p:P.hotel};
 var DAYS = [
   {t:"11/12 · 도착 & 야간 쇼핑", stops:[
     {p:PVG, t:"18:55 도착"},
     {p:P.hotel, t:"21:00 (택시)"},
     {p:P.chii, t:"21:20~"},{p:P.miniso, t:""},{p:P.first, t:""},{p:P.pop, t:"(21:00 마감)"},
-    {p:P.bund, t:"~24:00 야경"}
+    {p:P.bund, t:"야경"},
+    {p:P.hotel, t:"~24:00 귀환"}
   ]},
   {t:"11/13 · 예원 & 디즈니랜드", stops:[
     {p:P.hotel, t:"출발"},
@@ -192,7 +198,7 @@ var DAYS = [
     {p:P.nanjing, t:"10:00 난징동루"},
     {p:P.crab, t:"13:00 점심"},
     {p:P.disney, t:"15:00"},
-    {p:P.simuk, t:"21:00 저녁"}
+    {p:P.hotel, t:"귀환 · 21:00 시먹(배달)"}
   ]},
   {t:"11/14 · 무캉로 & 신천지", stops:[
     {p:P.hotel, t:"출발"},
@@ -202,9 +208,11 @@ var DAYS = [
     {p:P.xtd, t:"14:30"},
     {p:P.luna, t:"16:30"},
     {p:P.hdl, t:"17:00 저녁"},
-    {p:P.pearl, t:"20:00"}
+    {p:P.pearl, t:"20:00"},
+    {p:P.hotel, t:"귀환"}
   ]},
   {t:"11/15 · 귀국", stops:[
+    {p:P.hotel, t:"체크아웃"},
     {p:PVG, t:"11:00 도착 → 14:00 인천행 ✈️"}
   ]}
 ];
@@ -217,34 +225,41 @@ function draw(i){
   document.querySelectorAll("#dayTabs button").forEach(function(b,k){ b.classList.toggle("on", k===i); });
   var d = DAYS[i];
   layer.clearLayers();
-  var pts = [], n = 0, html = "";
+  var pts = [], n = 0, html = "", homeDrawn = false;
   d.stops.forEach(function(s){
-    var p = s.p, has = !!p.ll, label;
+    var p = s.p, has = !!p.ll, home = (p===P.hotel), air = (p===PVG), label, cls = "";
+    if(home){ label = "H"; cls = "home"; }
+    else if(air){ label = "✈"; }
+    else if(has){ label = ++n; }
+    else { label = "?"; }
     if(has){
-      n++; label = n;
       pts.push(p.ll);
-      var icon = L.divIcon({className:"", html:'<div class="pin'+(p.approx?' approx':'')+'">'+n+'</div>', iconSize:[26,26], iconAnchor:[13,13]});
-      L.marker(p.ll,{icon:icon}).addTo(layer).bindPopup("<b>"+p.n+"</b><br>"+(s.t||"")+(p.approx?"<br>(대략 위치)":""));
-    } else { label = "?"; }
-    html += '<li><span class="num'+(has?'':' none')+'">'+label+'</span><div><b>'+p.n+'</b> '
+      if(!(home && homeDrawn)){
+        if(home) homeDrawn = true;
+        var sz = home ? 24 : 20;
+        var icon = L.divIcon({className:"", html:'<div class="pin '+cls+(p.approx&&!home?' approx':'')+'">'+label+'</div>', iconSize:[sz,sz], iconAnchor:[sz/2,sz/2]});
+        L.marker(p.ll,{icon:icon}).addTo(layer).bindPopup(p.n);
+      }
+    }
+    html += '<li><span class="num '+(home?'home':(has?'':'none'))+'">'+label+'</span><div><b>'+p.n+'</b> '
       + (s.t?'<span class="approx">'+s.t+'</span>':'')
-      + (p.approx&&has?' <span class="approx">· 대략 위치</span>':'')
-      + (!has&&!s.nolink?' <span class="approx">· 위치 미확인 (지도 미표시)</span>':'')
-      + (s.note?'<div class="approx">'+s.note+'</div>':'')
-      + (p.q && !s.nolink ? '<div><a href="'+gmaps(p.q)+'" target="_blank" rel="noopener">구글맵에서 보기 ↗</a></div>' : '')
+      + (!has&&!s.nolink?' <span class="approx">· 지도 미표시</span>':'')
+      + (p.q && !s.nolink ? ' <a href="'+gmaps(p.q)+'" target="_blank" rel="noopener">구글맵 ↗</a>' : '')
       + '</div></li>';
   });
-  if(pts.length>1){ L.polyline(pts,{color:"#e4572e",weight:4,opacity:.8,dashArray:"8 6"}).addTo(layer); }
-  if(pts.length>1){ map.fitBounds(L.latLngBounds(pts).pad(0.15)); }
-  else if(pts.length===1){ map.setView(pts[0], 12); }
+  if(pts.length>1){
+    L.polyline(pts,{color:"#e4572e",weight:2.5,opacity:.65,dashArray:"4 6"}).addTo(layer);
+    map.fitBounds(L.latLngBounds(pts).pad(0.15));
+  } else if(pts.length===1){ map.setView(pts[0], 12); }
   document.getElementById("legTitle").textContent = d.t;
   document.getElementById("legList").innerHTML = html;
 }
 
 function initMap(){
   if(map) return;
-  map = L.map("map");
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
+  map = L.map("map",{zoomControl:false}); L.control.zoom({position:"bottomright"}).addTo(map);
+  var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/"+(dark?"dark_all":"light_all")+"/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd",attribution:"© OpenStreetMap © CARTO"}).addTo(map);
   layer = L.layerGroup().addTo(map);
   draw(0);
 }
