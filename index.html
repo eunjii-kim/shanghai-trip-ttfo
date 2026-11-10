@@ -55,6 +55,8 @@
   .legend a{color:var(--accent);font-size:.8rem;text-decoration:none;white-space:nowrap}
   .approx{color:var(--muted);font-size:.78rem}
   .note{color:var(--muted);font-size:.8rem;margin:10px 2px 0}
+  .basetiles{filter:grayscale(.55) saturate(.8) brightness(1.04) contrast(.92)}
+  @media (prefers-color-scheme: dark){ .basetiles{filter:invert(1) hue-rotate(180deg) grayscale(.5) brightness(.9) contrast(.9)} }
   .pin{background:var(--accent);color:#fff;border:2px solid #fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.68rem;box-shadow:0 0 2px rgba(0,0,0,.35)}
   .pin.approx{background:#8a8f99}
   .pin.home{background:#1f2430;width:24px;height:24px;font-size:.72rem}
@@ -259,8 +261,7 @@ function draw(i){
 function initMap(){
   if(map) return;
   map = L.map("map",{zoomControl:false}); L.control.zoom({position:"bottomright"}).addTo(map);
-  var dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/"+(dark?"dark_all":"light_all")+"/{z}/{x}/{y}{r}.png",{maxZoom:19,subdomains:"abcd",attribution:"© OpenStreetMap © CARTO"}).addTo(map);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,className:"basetiles",attribution:"© OpenStreetMap contributors"}).addTo(map);
   layer = L.layerGroup().addTo(map);
   draw(0);
 }
